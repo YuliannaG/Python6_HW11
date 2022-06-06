@@ -14,7 +14,7 @@ def input_error(func):
 
 
 COMMANDS = {func_hello: 'hello', show_all: 'show all', add_contact: 'add', change_contact: 'change',
-            phone_contact: 'phone', func_exit: ['good buy', 'close', 'exit']}
+            phone_contact: 'phone', birthday_contact: 'birthday', func_exit: ['good buy', 'close', 'exit']}
 
 
 @input_error

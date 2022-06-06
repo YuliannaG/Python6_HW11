@@ -127,11 +127,11 @@ class Record(UserDict):
             self.birthday = birthday
 
     def days_to_birthday(self):
-        if isinstance(self.birthday, Birthday):
-            delta = self.birthday.birthday - datetime.now().date()
-            return delta.days
-        else:
-            return "No birthday data available"
+        delta1 = datetime(datetime.now().year, self.birthday.birthday.month, self.birthday.birthday.day)
+        delta2 = datetime(datetime.now().year + 1, self.birthday.birthday.month, self.birthday.birthday.day)
+        result = ((delta1 if delta1 > datetime.now() else delta2) - datetime.now()).days
+        return f'Birthday is in {result} days.'
+
 
 
 class AddressBook(UserDict):
@@ -184,6 +184,15 @@ def phone_contact(name, *args, **kwargs):
     return f"{name.capitalize()}'s numbers are {contacts_dict[name].phones}"
 
 
+def birthday_contact(name, *args, **kwargs):
+    record_lookup = contacts_dict.get(name)
+    if isinstance(record_lookup, Record):
+        if record_lookup.birthday.birthday is None:
+            return "No birthday data available"
+        else:
+            result_bd = record_lookup.days_to_birthday()
+            return f"{name.capitalize()}'s birthday is {contacts_dict[name].birthday}. {result_bd}"
+    return "No personal record available"
 def show_all(*args, **kwargs):
     # for k,v in contacts_dict.items():
     #     return '{:^10}{:^10}'.format(k, v)
