@@ -21,10 +21,12 @@ COMMANDS = {func_hello: 'hello', show_all: 'show all', add_contact: 'add', chang
 def output_func(user_command):
     command = user_command['command']
     name_command = user_command['name']
+#    phone_command = None if (user_command['phone'] == []) else user_command['phone']
     phone_command = user_command['phone']
+    birthday_command = user_command['birthday']
     for k, v in COMMANDS.items():
         if command in v:
-            return k(name_command, *phone_command)
+            return k(name=name_command, phone=phone_command, birthday=birthday_command)   #name_command, *phone_command, birthday_command
 
 
 def main():
