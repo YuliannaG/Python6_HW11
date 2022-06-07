@@ -7,16 +7,16 @@ import re
 
 class Field:
     def __init__(self, value):
-        self.__value = None
+        self._value = None # если у нас наследование и в дочерних классах предвидится минимум переопределений используем _ одинарное подчеркивание (протектед)
         self.value = value
 
     @property
     def value(self):
-        return self.__value
+        return self._value
 
     @value.setter
     def value(self, value):
-        self.__value = value
+        self._value = value
 
 
 class Name(Field):
@@ -32,48 +32,58 @@ class Name(Field):
 
 
     # проверяет значение по регулярке но выводит в виде handler.Name object at 0X3782658723
-    def __init__(self, name: str):
-        super().__init__(name)
+    # def __init__(self, name: str):
+    #     super().__init__(name)
 
     @Field.value.setter
     def value(self, name):
-        if re.match (r"[a-z,A-Z]*", name):
-            Field.value.fset(self, name)
+        if re.match (r"[a-zA-Z]+", name): # Было не корректное выражение
+            self._value = name
+            #Field.value.fset(self, name) # А что єто за конструкция????)))
         else:
             raise ValueError('Name format is incorrect.')
 
 
 class Phone(Field):
 
-    def __init__(self, phone: str = None):
-        self.phone = phone
+    # def __init__(self, phone: str = None):
+    #     self.phone = phone
 
     def __repr__(self):
-        return f'{self.phone}'
+        return f'{self._value}'
 
 
     # def __init__(self, phone: str):
     #     super().__init__(phone)
     #
-    # @Field.value.setter
-    # def value(self, phone):
-    #     if re.match (r"^[\+]\d{11}\d?", phone):
-    #         Field.value.fset(self, phone)
-    #     else:
-    #         raise ValueError('Phone format is incorrect.')
+    @Field.value.setter
+    def value(self, phone):
+        if re.match (r"^[\+]\d{11}\d?", phone):
+            self._value = phone
+            #Field.value.fset(self, phone)
+        else:
+            raise ValueError('Phone format is incorrect.')
 
 
 class Birthday(Field):
 
-    def __init__(self, birthday: str = None):
+    # def __init__(self, birthday: str): # в классе не должно быть поле None, если так, то класс не создаётся
+    #     try:
+    #         birthday = datetime.strptime(birthday, "%Y/%m/%d").date()
+    #         self.birthday = birthday
+    #     except TypeError or ValueError:
+    #         return
+    
+    @Field.value.setter
+    def value(self, value):
         try:
-            birthday = datetime.strptime(birthday, "%Y/%m/%d").date()
-            self.birthday = birthday
+            birthday = datetime.strptime(value, "%Y/%m/%d").date()
+            self._value = birthday
         except TypeError or ValueError:
-            self.birthday = birthday
+            raise ValueError("Data mus be in 'YYYY/MM/DD' format.")
 
     def __repr__(self):
-        return f'{self.birthday}'
+        return f'{self._value}'
 
 
     #  непонятно как в инициализацию ввести конвертацию в дату
@@ -96,13 +106,15 @@ class Record(UserDict):
         self.phones = []
         if phone:
             self.phones.append(phone)
-        if birthday:
-            self.birthday = birthday
-        else:
-            self.birthday = ""
+        #if birthday: # можно без проверки, просто поле будет None
+        self.birthday = birthday
+        #else:
+        #    self.birthday = ""
 
     def __repr__(self):
-        return f'{self.name.name}: {[p.phone for p in self.phones]}, DOB {self.birthday}'
+        if self.birthday:
+            return f'{self.name.value}: {[p.value for p in self.phones]}, DOB {self.birthday}'
+        return f'{self.name.value}: {[p.value for p in self.phones]}'
 
     def add_phone(self, phone: Phone):
         if phone.phone not in [p.phone for p in self.phones]:
@@ -135,9 +147,9 @@ class Record(UserDict):
 class AddressBook(UserDict):
 
     def add_record(self, record: Record):
-        self.data[record.name.name] = record
+        self.data[record.name.value] = record
 
-    def __iter__(self):
+    def __iter__(self): # Должен быть не магический __iter__, а физический iterator(self, pages):
         data = self.data
         items = list(data.items())
         for i in range(len(items) // 2):
@@ -210,4 +222,14 @@ def func_exit(*args, **kwargs):
 
 
 if __name__ == '__main__':
-    ...
+    ab = AddressBook()
+    ab.add_record(Record(Name("Bill"), Phone("+380971234567"), Birthday('1990/06/15')))
+    while True:
+        try:
+            name = Name(input("Type contact name >>> "))
+            phone = Phone(input("Tupe contact telephone >>> "))
+            ab.add_record(Record(name, phone))
+            break
+        except ValueError as e:
+            print(e)
+    print(ab)
