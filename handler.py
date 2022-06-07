@@ -139,11 +139,13 @@ class AddressBook(UserDict):
     def add_record(self, record: Record):
         self.data[record.name.name] = record
 
-    # AddressBook реализует метод iterator, которые возвращает генератор
-    # по записям AddressBook и за одну итерацию возвращает представление
-    # для N записей.
-    def iterator(self):
-        ...
+    def __iter__(self):
+        data = self.data
+        items = list(data.items())
+        for i in range(len(items) // 2):
+            _tmp = items[2 * i: 2 * (i + 1)]
+            yield _tmp
+
 
 contacts_dict = AddressBook()
 
@@ -194,9 +196,13 @@ def birthday_contact(name, *args, **kwargs):
             return f"{name.capitalize()}'s birthday is {contacts_dict[name].birthday}. {result_bd}"
     return "No personal record available"
 def show_all(*args, **kwargs):
-    # for k,v in contacts_dict.items():
-    #     return '{:^10}{:^10}'.format(k, v)
-    return contacts_dict
+    # выводит только первую пару:( единственную запись тоже не выводит
+    while True:
+        try:
+            element = next(iter(contacts_dict))
+            return element
+        except StopIteration:
+            break
 
 
 def func_exit(*args, **kwargs):
@@ -204,26 +210,4 @@ def func_exit(*args, **kwargs):
 
 
 if __name__ == '__main__':
-    contacts_dict = {}
-    name = 'maria'
-    phone = '44'
-    date = '1987/12/12'
-    date_norm = datetime.strptime(date, "%Y/%m/%d")
-    print(date_norm)
-    # print(add_contact(name,phone))
-    # print(contacts_dict)
-    print(add_contact(name, date))
-    print(contacts_dict)
-    # name = 'maria'
-    # phone = '44'
-    # new_phone = '88'
-    # change_contact(name, phone, new_phone)
-    # print(datetime.strptime("2011/12/10", "%Y/%m/%d"))
-    # birthday = Birthday('2011/12/10')
-    # record = Record(name, phone, birthday)
-    # result = record.days_to_birthday()
-    # print(result)
-    # record_no = Record(name, phone)
-    # print(record_no.days_to_birthday())
-
-
+    ...
