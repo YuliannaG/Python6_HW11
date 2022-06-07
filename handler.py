@@ -4,32 +4,44 @@ from collections import UserDict, defaultdict
 from datetime import datetime, timedelta
 import re
 
-class Field():
-   ...
+
+class Field:
+    def __init__(self, value):
+        self.__value = None
+        self.value = value
+
+    @property
+    def value(self):
+        return self.__value
+
+    @value.setter
+    def value(self, value):
+        self.__value = value
+
 
 class Name(Field):
-    def __init__(self, name: str):
-        self.name = name
-
-    def __repr__(self):
-        return f'{self.name}'
-
+    # Working option:
     # def __init__(self, name: str):
-    #     self.__name = name
+    #     self.name = name
     #
     # def __repr__(self):
-    #     return f'{self.__name}'
-    #
-    # @property
-    # def value(self):
-    #     return self.__name
-    #
-    # @value.setter
-    # def value(self, name):
-    #     if re.match (r"[a-z,A-Z]*", name):
-    #         self.__name = name
-    #     else:
-    #         raise ValueError('Name format is incorrect.')
+    #     return f'{self.name}'
+
+    # def __repr__(self):
+    #     return f'{self.name}'
+
+
+    # проверяет значение по регулярке но выводит в виде handler.Name object at 0X3782658723
+    def __init__(self, name: str):
+        super().__init__(name)
+
+    @Field.value.setter
+    def value(self, name):
+        if re.match (r"[a-z,A-Z]*", name):
+            Field.value.fset(self, name)
+        else:
+            raise ValueError('Name format is incorrect.')
+
 
 class Phone(Field):
 
@@ -39,20 +51,14 @@ class Phone(Field):
     def __repr__(self):
         return f'{self.phone}'
 
-    # def __init__(self, phone: str = None):
-    #     self.__phone = phone
+
+    # def __init__(self, phone: str):
+    #     super().__init__(phone)
     #
-    # def __repr__(self):
-    #     return f'{self.__phone}'
-    #
-    # @property
-    # def value(self):
-    #     return self.__phone
-    #
-    # @value.setter
+    # @Field.value.setter
     # def value(self, phone):
     #     if re.match (r"^[\+]\d{11}\d?", phone):
-    #         self.__phone = phone
+    #         Field.value.fset(self, phone)
     #     else:
     #         raise ValueError('Phone format is incorrect.')
 
@@ -69,26 +75,19 @@ class Birthday(Field):
     def __repr__(self):
         return f'{self.birthday}'
 
+
+    #  непонятно как в инициализацию ввести конвертацию в дату
+
     # def __init__(self, birthday: str = None):
-    #     try:
-    #         self.__birthday = datetime.strptime(birthday, "%d/%m/%Y")
-    #         return self.__birthday
-    #     except TypeError or ValueError:
-    #         self.__birthday = birthday
+    #     super().__init__(birthday)
     #
-    # def __repr__(self):
-    #     return f'{self.__birthday}'
-    #
-    # @property
-    # def value(self):
-    #     return self.__birthday
-    #
-    # @value.setter
+    # @Field.value.setter
     # def value(self, birthday):
     #     if re.match (r"^[0-1]\d/[0-1]\d/[1|2][0|9]\d\d", birthday):
-    #         self.__birthday = birthday
+    #         Field.value.fset(self, birthday)
     #     else:
-    #         raise ValueError('Birthday format is incorrect. please enter dd/mm/yyyy')
+    #         raise ValueError('Birthday format is incorrect. please enter yyyy/mm/dd')
+
 
 class Record(UserDict):
 
@@ -101,7 +100,6 @@ class Record(UserDict):
             self.birthday = birthday
         else:
             self.birthday = ""
-
 
     def __repr__(self):
         return f'{self.name.name}: {[p.phone for p in self.phones]}, DOB {self.birthday}'
@@ -195,6 +193,8 @@ def birthday_contact(name, *args, **kwargs):
             result_bd = record_lookup.days_to_birthday()
             return f"{name.capitalize()}'s birthday is {contacts_dict[name].birthday}. {result_bd}"
     return "No personal record available"
+
+
 def show_all(*args, **kwargs):
     # выводит только первую пару:( единственную запись тоже не выводит
     while True:
