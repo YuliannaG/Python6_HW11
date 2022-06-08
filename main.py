@@ -2,20 +2,21 @@
 и возврат пользователю ответа от функции-handlerа."""
 from parser import normalize
 from handler import *
-
+from parser import normalize
 
 def input_error(func):
     def inner(*args, **kwargs):
         try:
             return func(*args, **kwargs)
-        except:
-            print('Please, enter command, name and phone number')
+        except ValueError:
+            return 'Please, check the data format:\n- name should be latin letters only;\n- phone should be in format + /country code/ /area code/ /phone number/;\n- date of birth should be in format yyyy/mm/dd.'
+        # except IndexError:
+        #     return 'Please enter full command'
     return inner
 
 
 COMMANDS = {func_hello: 'hello', show_all: 'show all', add_contact: 'add', change_contact: 'change',
             phone_contact: 'phone', birthday_contact: 'birthday', func_exit: ['good buy', 'close', 'exit']}
-
 
 @input_error
 def output_func(user_command):
