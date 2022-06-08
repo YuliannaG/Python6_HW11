@@ -98,15 +98,21 @@ class Record(UserDict):
         result = ((delta1 if delta1 > datetime.now() else delta2) - datetime.now()).days
         return f'Birthday is in {result} days.'
 
+i = 2
 
 class AddressBook(UserDict):
 
-    def __iter__(self): # Должен быть не магический __iter__, а физический iterator(self, pages):
+    def iterator(self, num: int = 2):
         data = self.data
         items = list(data.items())
-        for i in range(len(items) // 2):
-            _tmp = items[2 * i: 2 * (i + 1)]
+        for i in range(len(items) // num): #range is number of filled pages in the address book with num records on 1 page
+            if i == (len(items) // num):
+                _tmp = items[num * i:len(items)]
+            _tmp = items[num * i: (num * i) + num]  #records on any one page
             yield _tmp
+
+    def __repr__(self):
+        return f'{self.data}'
 
 
 contacts_dict = AddressBook()
@@ -160,14 +166,11 @@ def birthday_contact(name, *args, **kwargs):
 
 
 def show_all(*args, **kwargs):
-    return contacts_dict
-    # выводит только первую пару:( единственную запись тоже не выводит
-    # while True:
-    #     try:
-    #         element = next(iter(contacts_dict))
-    #         return element
-    #     except StopIteration:
-    #         break
+    iter = contacts_dict.iterator(2)
+    result = ""
+    for i in iter:
+        result += f'{i}\n'
+    return result
 
 
 def func_exit(*args, **kwargs):
@@ -175,14 +178,4 @@ def func_exit(*args, **kwargs):
 
 
 if __name__ == '__main__':
-    ab = AddressBook()
-    ab.add_record(Record(Name("Bill"), Phone("+380971234567"), Birthday('1990/06/15')))
-    while True:
-        try:
-            name = Name(input("Type contact name >>> "))
-            phone = Phone(input("Tupe contact telephone >>> "))
-            ab.add_record(Record(name, phone))
-            break
-        except ValueError as e:
-            print(e)
-    print(ab)
+    ...
