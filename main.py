@@ -1,8 +1,8 @@
 """Цикл запрос-ответ. Эта часть приложения отвечает за получения от пользователя данных
 и возврат пользователю ответа от функции-handlerа."""
-from parser import normalize
 from handler import *
 from parser import normalize
+
 
 def input_error(func):
     def inner(*args, **kwargs):
@@ -18,6 +18,7 @@ def input_error(func):
 COMMANDS = {func_hello: 'hello', show_all: 'show all', add_contact: 'add', change_contact: 'change',
             phone_contact: 'phone', birthday_contact: 'birthday', func_exit: ['good buy', 'close', 'exit']}
 
+
 @input_error
 def output_func(user_command):
     command = user_command['command']
@@ -27,7 +28,7 @@ def output_func(user_command):
     birthday_command = user_command['birthday']
     for k, v in COMMANDS.items():
         if command in v:
-            return k(name=name_command, phone=phone_command, birthday=birthday_command)   #name_command, *phone_command, birthday_command
+            return k(name=name_command, phone=phone_command, birthday=birthday_command)   # name_command, *phone_command, birthday_command
 
 
 def main():

@@ -24,13 +24,4 @@ def normalize(raw_user_input: str) -> dict:
 
 
 if __name__ == '__main__':
-    user_command = normalize('add Maria 44 66')
-    name = Name(user_command['name'])
-    phone = Phone(user_command['phone'])
-    record = Record(name, phone)
-    command = user_command['command']
-    print(phone)
-
-    print(func_hello())
-    print(add_contact(record, name))
-    print(contacts_dict)
+    ...

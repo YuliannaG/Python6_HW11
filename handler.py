@@ -36,7 +36,7 @@ class Phone(Field):
 
     @Field.value.setter
     def value(self, phone):
-        if re.match (r"^[\+]\d{11}\d?", phone):
+        if re.match (r"^\+\d{11}\d?", phone):
             self._value = phone
         else:
             raise ValueError
@@ -98,21 +98,37 @@ class Record(UserDict):
         result = ((delta1 if delta1 > datetime.now() else delta2) - datetime.now()).days
         return f'Birthday is in {result} days.'
 
-i = 2
 
 class AddressBook(UserDict):
+    # the following code does not show the last page is the number of records on it is less than num
+    # def iterator(self, num: int = 2):
+    #     data = self.data
+    #     items = list(data.items())
+    #     for i in range(len(items) // num): #range is number of filled pages in the address book with num records on 1 page
+    #         if i == (len(items) // num):
+    #             _tmp = items[num * i:len(items)]
+    #         _tmp = items[num * i: (num * i) + num]  #records on any one page
+    #         yield _tmp
 
     def iterator(self, num: int = 2):
         data = self.data
         items = list(data.items())
-        for i in range(len(items) // num): #range is number of filled pages in the address book with num records on 1 page
-            if i == (len(items) // num):
-                _tmp = items[num * i:len(items)]
-            _tmp = items[num * i: (num * i) + num]  #records on any one page
-            yield _tmp
+        counter = 0
+        result = ''
+        for i in items:
+            result += f'{i}'
+            counter += 1
+            if counter >= num:
+                yield result
+                result = ''
+                counter = 0
+        yield result
 
     def __repr__(self):
         return f'{self.data}'
+
+    def add_record(self, record: Record):
+        self.data[record.name.value] = record
 
 
 contacts_dict = AddressBook()
@@ -122,7 +138,7 @@ def func_hello(*args, **kwargs):
     return "How can I help you?"
 
 
-def add_contact(name, phone = None, birthday = None):
+def add_contact(name, phone=None, birthday=None):
     name_a = Name(name)
     phone_a = Phone(phone[0]) if phone else None
     birthday_a = Birthday(birthday)
@@ -135,7 +151,7 @@ def add_contact(name, phone = None, birthday = None):
         if birthday:
             record_lookup.birthday = birthday
             return f'Birthday information updated for {name.capitalize()}'
-    contacts_dict.data[record_new.name.value] = record_new
+    contacts_dict.add_record(record_new)
     return f'Information record for {name.capitalize()} added'
 
 
@@ -166,9 +182,9 @@ def birthday_contact(name, *args, **kwargs):
 
 
 def show_all(*args, **kwargs):
-    iter = contacts_dict.iterator(2)
+    result_iter = contacts_dict.iterator(2)
     result = ""
-    for i in iter:
+    for i in result_iter:
         result += f'{i}\n'
     return result
 
